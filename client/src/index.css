@@ -109,6 +109,31 @@ body {
   border-bottom: 1px solid #eee;
 }
 
+.expense-table td .link-button {
+  margin-right: 0.75rem;
+}
+
+.expense-table input,
+.expense-table select {
+  padding: 0.35rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-bar select,
+.filter-bar input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .total {
   font-weight: 600;
   margin-bottom: 0.75rem;
