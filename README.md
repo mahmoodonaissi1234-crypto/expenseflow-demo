@@ -72,8 +72,13 @@ npm run dev
 | GET    | /api/categories       | Yes  | List your categories  |
 | POST   | /api/categories       | Yes  | Create a category     |
 | DELETE | /api/categories/:id   | Yes  | Delete a category     |
+| GET    | /api/dashboard/summary | Yes | Current-month total, spend by category, 5 most recent transactions |
 
 Send the JWT from login/register as `Authorization: Bearer <token>`.
+
+`/api/dashboard/summary`'s total spend and category breakdown are scoped to the
+current calendar month; the recent-transactions list is the 5 most recent overall
+(not month-scoped).
 
 Categories are per-user: each account gets a starter set (general, food, transport,
 utilities, entertainment, other) on registration, and can add more from the

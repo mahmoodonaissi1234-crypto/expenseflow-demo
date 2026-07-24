@@ -4,6 +4,7 @@ import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseList from '../components/ExpenseList';
+import DashboardSummary from '../components/DashboardSummary';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [fromFilter, setFromFilter] = useState('');
   const [toFilter, setToFilter] = useState('');
   const [error, setError] = useState('');
+  const [summaryRefreshKey, setSummaryRefreshKey] = useState(0);
 
   useEffect(() => {
     api
@@ -42,16 +44,19 @@ export default function Dashboard() {
   async function handleCreate(expense) {
     const res = await api.post('/expenses', expense);
     setExpenses((prev) => [res.data.expense, ...prev]);
+    setSummaryRefreshKey((key) => key + 1);
   }
 
   async function handleUpdate(id, changes) {
     const res = await api.patch(`/expenses/${id}`, changes);
     setExpenses((prev) => prev.map((expense) => (expense.id === id ? res.data.expense : expense)));
+    setSummaryRefreshKey((key) => key + 1);
   }
 
   async function handleDelete(id) {
     await api.delete(`/expenses/${id}`);
     setExpenses((prev) => prev.filter((expense) => expense.id !== id));
+    setSummaryRefreshKey((key) => key + 1);
   }
 
   const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
@@ -72,6 +77,8 @@ export default function Dashboard() {
       </header>
 
       {error && <p className="error">{error}</p>}
+
+      <DashboardSummary refreshKey={summaryRefreshKey} />
 
       <ExpenseForm onCreate={handleCreate} />
 
