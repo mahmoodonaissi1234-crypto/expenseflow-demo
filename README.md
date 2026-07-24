@@ -104,6 +104,10 @@ this via a single `DATABASE_URL` (used instead of the local `PG*` vars when set)
    - `JWT_SECRET` — any long random string
    - `JWT_EXPIRES_IN` — e.g. `7d`
    - `CLIENT_ORIGIN` — your Vercel deployment's URL (once you have it)
+   - `VITE_API_URL` — set to `/api` (a relative path). This is a client **build-time**
+     variable, so adding/changing it requires a redeploy to take effect — client and
+     server share one domain on Vercel, so a relative path is correct here even
+     though local dev uses an absolute `http://localhost:4000/api`.
 4. **Run the migration against the hosted database** — from your local machine,
    temporarily set `server/.env`'s `DATABASE_URL` to the same connection string
    Vercel is using, then run `cd server && npm run db:migrate`. This only needs
