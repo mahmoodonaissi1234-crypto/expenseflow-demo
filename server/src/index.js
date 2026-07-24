@@ -13,6 +13,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/ping', (req, res) => res.json({ pong: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
