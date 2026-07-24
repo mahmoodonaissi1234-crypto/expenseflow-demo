@@ -93,8 +93,10 @@ this via a single `DATABASE_URL` (used instead of the local `PG*` vars when set)
 
 1. **Import the repo into Vercel** — from the Vercel dashboard, "Add New" → "Project",
    pick this GitHub repo. `vercel.json` at the repo root already configures the
-   monorepo split (`client/` as the static build, `server/src/index.js` as a
-   serverless function handling `/api/*`, `/health`, `/ping`).
+   monorepo split: `client/` builds as the static site, and `api/index.js` (a
+   thin wrapper re-exporting the Express app from `server/src/index.js`) is
+   auto-detected by Vercel as the serverless function handling `/api/*`,
+   `/health`, and `/ping`.
 2. **Provision Postgres** — in the new project, go to the "Storage" tab → "Create
    Database" → choose a Postgres option (Neon-backed). This automatically adds a
    connection-string env var (commonly `DATABASE_URL` or `POSTGRES_URL`) to the
