@@ -1,5 +1,9 @@
 const pool = require('../db');
 
+function isValidDate(value) {
+  return typeof value === 'string' && !Number.isNaN(Date.parse(value));
+}
+
 async function resolveCategoryId(userId, rawName) {
   const name = (rawName && rawName.trim()) || 'general';
   const existing = await pool.query('SELECT id FROM categories WHERE user_id = $1 AND name = $2', [
@@ -17,13 +21,41 @@ async function resolveCategoryId(userId, rawName) {
 }
 
 async function listExpenses(req, res) {
+  const { categoryId, from, to } = req.query;
+  const conditions = ['e.user_id = $1'];
+  const params = [req.userId];
+
+  if (categoryId !== undefined) {
+    if (!/^\d+$/.test(categoryId)) {
+      return res.status(400).json({ error: 'categoryId must be a number' });
+    }
+    params.push(categoryId);
+    conditions.push(`e.category_id = $${params.length}`);
+  }
+
+  if (from !== undefined) {
+    if (!isValidDate(from)) {
+      return res.status(400).json({ error: 'from must be a valid date' });
+    }
+    params.push(from);
+    conditions.push(`e.spent_on >= $${params.length}`);
+  }
+
+  if (to !== undefined) {
+    if (!isValidDate(to)) {
+      return res.status(400).json({ error: 'to must be a valid date' });
+    }
+    params.push(to);
+    conditions.push(`e.spent_on <= $${params.length}`);
+  }
+
   const result = await pool.query(
     `SELECT e.id, e.description, e.amount, c.name AS category, e.spent_on, e.created_at
      FROM expenses e
      JOIN categories c ON c.id = e.category_id
-     WHERE e.user_id = $1
+     WHERE ${conditions.join(' AND ')}
      ORDER BY e.spent_on DESC, e.id DESC`,
-    [req.userId]
+    params
   );
   return res.json({ expenses: result.rows });
 }
@@ -36,6 +68,9 @@ async function createExpense(req, res) {
   }
   if (Number.isNaN(Number(amount)) || Number(amount) <= 0) {
     return res.status(400).json({ error: 'amount must be a positive number' });
+  }
+  if (spentOn !== undefined && spentOn !== null && !isValidDate(spentOn)) {
+    return res.status(400).json({ error: 'date must be a valid date' });
   }
 
   const resolvedCategory = await resolveCategoryId(req.userId, category);
@@ -53,6 +88,15 @@ async function createExpense(req, res) {
 async function updateExpense(req, res) {
   const { id } = req.params;
   const { description, amount, category, spentOn } = req.body;
+
+  if (amount !== undefined && amount !== null) {
+    if (Number.isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ error: 'amount must be a positive number' });
+    }
+  }
+  if (spentOn !== undefined && spentOn !== null && !isValidDate(spentOn)) {
+    return res.status(400).json({ error: 'date must be a valid date' });
+  }
 
   const categoryId = category !== undefined && category !== null
     ? (await resolveCategoryId(req.userId, category)).id

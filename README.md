@@ -65,9 +65,9 @@ npm run dev
 | POST   | /api/auth/register | No   | Create an account     |
 | POST   | /api/auth/login     | No   | Log in, get a JWT     |
 | GET    | /api/auth/me        | Yes  | Current user          |
-| GET    | /api/expenses        | Yes  | List your expenses    |
+| GET    | /api/expenses        | Yes  | List your expenses (supports `?categoryId=`, `?from=&to=`) |
 | POST   | /api/expenses        | Yes  | Create an expense     |
-| PUT    | /api/expenses/:id    | Yes  | Update an expense     |
+| PUT/PATCH | /api/expenses/:id | Yes  | Update an expense (partial) |
 | DELETE | /api/expenses/:id    | Yes  | Delete an expense     |
 | GET    | /api/categories       | Yes  | List your categories  |
 | POST   | /api/categories       | Yes  | Create a category     |

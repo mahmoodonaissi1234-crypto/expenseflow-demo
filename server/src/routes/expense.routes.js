@@ -14,6 +14,7 @@ router.use(requireAuth);
 router.get('/', asyncHandler(listExpenses));
 router.post('/', asyncHandler(createExpense));
 router.put('/:id', asyncHandler(updateExpense));
+router.patch('/:id', asyncHandler(updateExpense));
 router.delete('/:id', asyncHandler(deleteExpense));
 
 module.exports = router;

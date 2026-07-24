@@ -1,19 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import api from '../api/client';
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 export default function ExpenseForm({ onCreate }) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('general');
+  const [categories, setCategories] = useState([]);
+  const [category, setCategory] = useState('');
+  const [spentOn, setSpentOn] = useState(today());
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    api
+      .get('/categories')
+      .then((res) => {
+        setCategories(res.data.categories);
+        if (res.data.categories.length > 0) {
+          setCategory((current) => current || res.data.categories[0].name);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await onCreate({ description, amount: Number(amount), category });
+      await onCreate({ description, amount: Number(amount), category, spentOn });
       setDescription('');
       setAmount('');
-      setCategory('general');
+      setSpentOn(today());
     } finally {
       setSubmitting(false);
     }
@@ -37,11 +56,18 @@ export default function ExpenseForm({ onCreate }) {
         onChange={(e) => setAmount(e.target.value)}
         required
       />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        {categories.map((c) => (
+          <option key={c.id} value={c.name}>
+            {c.name}
+          </option>
+        ))}
+      </select>
       <input
-        type="text"
-        placeholder="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
+        type="date"
+        value={spentOn}
+        onChange={(e) => setSpentOn(e.target.value)}
+        required
       />
       <button type="submit" disabled={submitting}>
         {submitting ? 'Adding...' : 'Add expense'}
