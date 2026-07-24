@@ -47,6 +47,17 @@ npm run dev            # starts on http://localhost:5173
 
 Open http://localhost:5173, register an account, and start adding expenses.
 
+## Running both at once
+
+After the one-time setup above (Postgres running, `.env` files in place, `npm install`
+done in both `server/` and `client/`), you can start both processes together from the
+repo root instead of using two terminals:
+
+```bash
+npm install   # first time only, installs the `concurrently` dev dependency
+npm run dev
+```
+
 ## API overview
 
 | Method | Route              | Auth | Description          |
