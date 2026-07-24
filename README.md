@@ -84,3 +84,30 @@ Categories are per-user: each account gets a starter set (general, food, transpo
 utilities, entertainment, other) on registration, and can add more from the
 Categories page. Deleting a category that's still referenced by an expense returns
 `409 Conflict` rather than cascading — reassign or delete those expenses first.
+
+## Deploying to Vercel
+
+Local Docker Postgres only runs on your own machine — a Vercel deployment needs a
+real hosted database it can reach over the network. `server/src/db.js` supports
+this via a single `DATABASE_URL` (used instead of the local `PG*` vars when set).
+
+1. **Import the repo into Vercel** — from the Vercel dashboard, "Add New" → "Project",
+   pick this GitHub repo. `vercel.json` at the repo root already configures the
+   monorepo split (`client/` as the static build, `server/src/index.js` as a
+   serverless function handling `/api/*`, `/health`, `/ping`).
+2. **Provision Postgres** — in the new project, go to the "Storage" tab → "Create
+   Database" → choose a Postgres option (Neon-backed). This automatically adds a
+   connection-string env var (commonly `DATABASE_URL` or `POSTGRES_URL`) to the
+   project — check the exact name Vercel used and set `DATABASE_URL` to match if
+   it's named differently.
+3. **Set the remaining env vars** (Project → Settings → Environment Variables):
+   - `JWT_SECRET` — any long random string
+   - `JWT_EXPIRES_IN` — e.g. `7d`
+   - `CLIENT_ORIGIN` — your Vercel deployment's URL (once you have it)
+4. **Run the migration against the hosted database** — from your local machine,
+   temporarily set `server/.env`'s `DATABASE_URL` to the same connection string
+   Vercel is using, then run `cd server && npm run db:migrate`. This only needs
+   to happen once (or again after a schema-changing update).
+5. **Deploy** and open the live URL. Run through: register → log in → add a
+   category → add an expense → view the dashboard → log out, on the live site
+   (not localhost) to confirm the full flow works end-to-end in production.

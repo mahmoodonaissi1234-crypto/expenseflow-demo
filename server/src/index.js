@@ -29,6 +29,14 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`ExpenseFlow API listening on port ${PORT}`);
-});
+
+// Only bind a port when run directly (local dev / `node src/index.js`).
+// Vercel's Node builder imports this file as a module and invokes the
+// exported Express app per-request instead.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`ExpenseFlow API listening on port ${PORT}`);
+  });
+}
+
+module.exports = app;
