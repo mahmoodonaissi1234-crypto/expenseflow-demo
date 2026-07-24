@@ -1,14 +1,18 @@
 const pool = require('../db');
 
-async function resolveCategoryId(rawName) {
+async function resolveCategoryId(userId, rawName) {
   const name = (rawName && rawName.trim()) || 'general';
-  const existing = await pool.query('SELECT id FROM categories WHERE name = $1', [name]);
+  const existing = await pool.query('SELECT id FROM categories WHERE user_id = $1 AND name = $2', [
+    userId,
+    name,
+  ]);
   if (existing.rows.length > 0) {
     return { id: existing.rows[0].id, name };
   }
-  const inserted = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING id', [
-    name,
-  ]);
+  const inserted = await pool.query(
+    'INSERT INTO categories (user_id, name) VALUES ($1, $2) RETURNING id',
+    [userId, name]
+  );
   return { id: inserted.rows[0].id, name };
 }
 
@@ -34,7 +38,7 @@ async function createExpense(req, res) {
     return res.status(400).json({ error: 'amount must be a positive number' });
   }
 
-  const resolvedCategory = await resolveCategoryId(category);
+  const resolvedCategory = await resolveCategoryId(req.userId, category);
 
   const result = await pool.query(
     `INSERT INTO expenses (user_id, description, amount, category_id, spent_on)
@@ -51,7 +55,7 @@ async function updateExpense(req, res) {
   const { description, amount, category, spentOn } = req.body;
 
   const categoryId = category !== undefined && category !== null
-    ? (await resolveCategoryId(category)).id
+    ? (await resolveCategoryId(req.userId, category)).id
     : null;
 
   const result = await pool.query(

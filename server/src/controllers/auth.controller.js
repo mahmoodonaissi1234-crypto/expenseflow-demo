@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const { signToken } = require('../utils/jwt');
 
+const DEFAULT_CATEGORIES = ['general', 'food', 'transport', 'utilities', 'entertainment', 'other'];
+
 async function register(req, res) {
   const { name, email, password } = req.body;
 
@@ -24,6 +26,13 @@ async function register(req, res) {
   );
 
   const user = result.rows[0];
+
+  await pool.query(
+    `INSERT INTO categories (user_id, name)
+     SELECT $1, unnest($2::text[])`,
+    [user.id, DEFAULT_CATEGORIES]
+  );
+
   const token = signToken({ sub: user.id, email: user.email });
   return res.status(201).json({ user, token });
 }

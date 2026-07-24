@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Categories from './pages/Categories';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,6 +21,14 @@ export default function App() {
         element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/categories"
+        element={
+          <PrivateRoute>
+            <Categories />
           </PrivateRoute>
         }
       />

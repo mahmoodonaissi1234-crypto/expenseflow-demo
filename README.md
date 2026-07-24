@@ -69,5 +69,13 @@ npm run dev
 | POST   | /api/expenses        | Yes  | Create an expense     |
 | PUT    | /api/expenses/:id    | Yes  | Update an expense     |
 | DELETE | /api/expenses/:id    | Yes  | Delete an expense     |
+| GET    | /api/categories       | Yes  | List your categories  |
+| POST   | /api/categories       | Yes  | Create a category     |
+| DELETE | /api/categories/:id   | Yes  | Delete a category     |
 
 Send the JWT from login/register as `Authorization: Bearer <token>`.
+
+Categories are per-user: each account gets a starter set (general, food, transport,
+utilities, entertainment, other) on registration, and can add more from the
+Categories page. Deleting a category that's still referenced by an expense returns
+`409 Conflict` rather than cascading — reassign or delete those expenses first.

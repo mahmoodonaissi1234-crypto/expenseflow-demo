@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import ExpenseForm from '../components/ExpenseForm';
@@ -40,6 +41,9 @@ export default function Dashboard() {
         <h1>ExpenseFlow</h1>
         <div>
           <span>{user?.name}</span>
+          <Link to="/categories" className="link-button">
+            Categories
+          </Link>
           <button className="link-button" onClick={logout}>
             Log out
           </button>

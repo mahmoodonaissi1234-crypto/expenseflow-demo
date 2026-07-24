@@ -5,6 +5,7 @@ const morgan = require('morgan');
 
 const authRoutes = require('./routes/auth.routes');
 const expenseRoutes = require('./routes/expense.routes');
+const categoryRoutes = require('./routes/category.routes');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get('/ping', (req, res) => res.json({ pong: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Wrap async route handlers so rejected promises reach the error handler below.
 app.use((err, req, res, next) => {
