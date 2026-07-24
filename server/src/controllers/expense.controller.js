@@ -19,7 +19,7 @@ async function listExpenses(req, res) {
      JOIN categories c ON c.id = e.category_id
      WHERE e.user_id = $1
      ORDER BY e.spent_on DESC, e.id DESC`,
-    [req.user.id]
+    [req.userId]
   );
   return res.json({ expenses: result.rows });
 }
@@ -40,7 +40,7 @@ async function createExpense(req, res) {
     `INSERT INTO expenses (user_id, description, amount, category_id, spent_on)
      VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_DATE))
      RETURNING id, description, amount, spent_on, created_at`,
-    [req.user.id, description, amount, resolvedCategory.id, spentOn]
+    [req.userId, description, amount, resolvedCategory.id, spentOn]
   );
 
   return res.status(201).json({ expense: { ...result.rows[0], category: resolvedCategory.name } });
@@ -62,7 +62,7 @@ async function updateExpense(req, res) {
          spent_on = COALESCE($4, spent_on)
      WHERE id = $5 AND user_id = $6
      RETURNING id`,
-    [description, amount, categoryId, spentOn, id, req.user.id]
+    [description, amount, categoryId, spentOn, id, req.userId]
   );
 
   if (result.rows.length === 0) {
@@ -83,7 +83,7 @@ async function deleteExpense(req, res) {
   const { id } = req.params;
   const result = await pool.query(
     'DELETE FROM expenses WHERE id = $1 AND user_id = $2 RETURNING id',
-    [id, req.user.id]
+    [id, req.userId]
   );
 
   if (result.rows.length === 0) {

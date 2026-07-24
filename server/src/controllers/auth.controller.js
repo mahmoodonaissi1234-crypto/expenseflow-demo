@@ -58,7 +58,7 @@ async function login(req, res) {
 
 async function me(req, res) {
   const result = await pool.query('SELECT id, name, email FROM users WHERE id = $1', [
-    req.user.id,
+    req.userId,
   ]);
   const user = result.rows[0];
   if (!user) {
