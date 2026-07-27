@@ -47,6 +47,25 @@ npm run dev            # starts on http://localhost:5173
 
 Open http://localhost:5173, register an account, and start adding expenses.
 
+## Running tests
+
+**Backend** (`server/`) — uses Jest + Supertest against a real Postgres database,
+kept separate from your dev database so tests never touch real data:
+
+```bash
+cd server
+cp .env.test.example .env.test   # edit PGDATABASE if needed; create that DB first
+npm test                          # migrates the test DB, then runs the tests
+```
+
+**Frontend** (`client/`) — uses Vitest + React Testing Library, no server needed
+(the API client is mocked):
+
+```bash
+cd client
+npm test
+```
+
 ## Running both at once
 
 After the one-time setup above (Postgres running, `.env` files in place, `npm install`
