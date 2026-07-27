@@ -1,23 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
+import Spinner from '../components/Spinner';
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     loadCategories();
   }, []);
 
   async function loadCategories() {
+    setLoading(true);
     try {
       const res = await api.get('/categories');
       setCategories(res.data.categories);
     } catch (err) {
       setError('Failed to load categories');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -40,11 +46,14 @@ export default function Categories() {
 
   async function handleDelete(id) {
     setError('');
+    setDeletingId(id);
     try {
       await api.delete(`/categories/${id}`);
       setCategories((prev) => prev.filter((category) => category.id !== id));
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to delete category');
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -68,19 +77,30 @@ export default function Categories() {
           required
         />
         <button type="submit" disabled={submitting}>
+          {submitting && <Spinner />}
           {submitting ? 'Adding...' : 'Add category'}
         </button>
       </form>
 
-      {categories.length === 0 ? (
+      {loading ? (
+        <p className="loading-text">
+          <Spinner />
+          Loading categories...
+        </p>
+      ) : categories.length === 0 ? (
         <p className="empty">No categories yet.</p>
       ) : (
         <ul className="category-list">
           {categories.map((category) => (
             <li key={category.id}>
               <span>{category.name}</span>
-              <button className="link-button" onClick={() => handleDelete(category.id)}>
-                Delete
+              <button
+                className="link-button"
+                onClick={() => handleDelete(category.id)}
+                disabled={deletingId === category.id}
+              >
+                {deletingId === category.id && <Spinner />}
+                {deletingId === category.id ? 'Deleting...' : 'Delete'}
               </button>
             </li>
           ))}

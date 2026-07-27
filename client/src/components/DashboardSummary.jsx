@@ -1,17 +1,33 @@
 import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import api from '../api/client';
+import Spinner from './Spinner';
 
 export default function DashboardSummary({ refreshKey }) {
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     api
       .get('/dashboard/summary')
-      .then((res) => setSummary(res.data))
-      .catch(() => setError('Failed to load dashboard summary'));
+      .then((res) => {
+        setSummary(res.data);
+        setError('');
+      })
+      .catch(() => setError('Failed to load dashboard summary'))
+      .finally(() => setLoading(false));
   }, [refreshKey]);
+
+  if (loading) {
+    return (
+      <p className="loading-text">
+        <Spinner />
+        Loading summary...
+      </p>
+    );
+  }
 
   if (error) {
     return <p className="error">{error}</p>;

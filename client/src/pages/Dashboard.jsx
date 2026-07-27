@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseList from '../components/ExpenseList';
 import DashboardSummary from '../components/DashboardSummary';
+import Spinner from '../components/Spinner';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const [fromFilter, setFromFilter] = useState('');
   const [toFilter, setToFilter] = useState('');
   const [error, setError] = useState('');
+  const [loadingExpenses, setLoadingExpenses] = useState(true);
   const [summaryRefreshKey, setSummaryRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -29,6 +31,7 @@ export default function Dashboard() {
   }, [categoryFilter, fromFilter, toFilter]);
 
   async function loadExpenses() {
+    setLoadingExpenses(true);
     try {
       const params = {};
       if (categoryFilter) params.categoryId = categoryFilter;
@@ -36,8 +39,11 @@ export default function Dashboard() {
       if (toFilter) params.to = toFilter;
       const res = await api.get('/expenses', { params });
       setExpenses(res.data.expenses);
+      setError('');
     } catch (err) {
       setError('Failed to load expenses');
+    } finally {
+      setLoadingExpenses(false);
     }
   }
 
@@ -107,12 +113,19 @@ export default function Dashboard() {
 
       <p className="total">Total: ${total.toFixed(2)}</p>
 
-      <ExpenseList
-        expenses={expenses}
-        categories={categories}
-        onUpdate={handleUpdate}
-        onDelete={handleDelete}
-      />
+      {loadingExpenses ? (
+        <p className="loading-text">
+          <Spinner />
+          Loading expenses...
+        </p>
+      ) : (
+        <ExpenseList
+          expenses={expenses}
+          categories={categories}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

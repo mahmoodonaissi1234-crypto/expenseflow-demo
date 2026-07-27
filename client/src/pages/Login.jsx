@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Spinner from '../components/Spinner';
 
 export default function Login() {
   const { login } = useAuth();
@@ -43,6 +44,7 @@ export default function Login() {
           />
         </label>
         <button type="submit" disabled={submitting}>
+          {submitting && <Spinner />}
           {submitting ? 'Logging in...' : 'Log in'}
         </button>
         <p>
